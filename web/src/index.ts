@@ -1,9 +1,9 @@
-import express, { type Request } from "express";
+import express, { json, type Request } from "express";
 import { randomUUID } from "crypto";
 import { rooms, users } from "./in-memory-store";
-import { WebSocketServer } from "ws";
 import ExpressWS from "express-ws";
 import { Events } from "./events";
+import { joinRoomEvent, updatePositionEvent } from "./handle-events";
 
 const app = express();
 
@@ -57,6 +57,7 @@ app.post("/rooms", (req, res) => {
   rooms.set(roomId, {
     len,
     bred,
+    sockets: [],
   });
 
   res.json({
@@ -114,14 +115,31 @@ app.put("/users/:userId/avatar", (req, res): any => {
 app.ws("/", function (ws, req) {
   // @ts-ignore
   ws.on("message", function (msg) {
-    const parsedMsg = msg.toString();
+    const parsedMsg = JSON.parse(msg.toString()) as {
+      event: Events;
+      payload: any;
+    };
 
-    switch (parsedMsg) {
+    const { token, roomId } = parsedMsg.payload;
+    let res;
+
+    switch (parsedMsg.event) {
       case Events.Join:
+        res = JSON.stringify(joinRoomEvent(roomId, token, ws));
+        ws.send(res);
         break;
-      case Events.Position:
-        break;
+
       case Events.UpdatePos:
+        const { x, y } = parsedMsg.payload;
+        res = updatePositionEvent(x, y, token, roomId);
+
+        // @ts-ignore
+        if (res.error) {
+          ws.send(JSON.stringify(res));
+        }
+
+        for (let socket of users.get(roomId)) socket.send(JSON.stringify(res));
+
         break;
       default:
         throw new Error("Not allowed event");
