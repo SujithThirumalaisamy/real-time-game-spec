@@ -8,12 +8,15 @@
   },
   "devDependencies": {
     "@types/bun": "latest",
-    "@types/express": "^5.0.0"
+    "@types/express": "^5.0.0",
+    "@types/express-ws": "^3.0.5"
   },
   "peerDependencies": {
     "typescript": "^5.0.0"
   },
   "dependencies": {
-    "express": "^4.21.1"
+    "express": "^4.21.1",
+    "express-ws": "^5.0.2",
+    "ws": "^8.18.0"
   }
 }

@@ -1,15 +1,25 @@
 import express, { type Request } from "express";
 import { randomUUID } from "crypto";
+import { rooms, users } from "./in-memory-store";
+import { WebSocketServer } from "ws";
+import ExpressWS from "express-ws";
+import { Events } from "./events";
 
 const app = express();
+
+const expressWs = ExpressWS(app);
+
 app.use(express.json());
+app.use(function (req, res, next) {
+  console.log("middleware");
+  // @ts-ignore
+  req.testing = "testing";
+  return next();
+});
 
 app.get("/", (req, res) => {
   res.send("Hello world");
 });
-
-const rooms = new Map();
-const users = new Map();
 
 // POST request to /signup
 app.post("/signup", (req, res): any => {
@@ -98,6 +108,28 @@ app.put("/users/:userId/avatar", (req, res): any => {
     ...user,
     avatar,
   });
+});
+
+// @ts-ignore
+app.ws("/", function (ws, req) {
+  // @ts-ignore
+  ws.on("message", function (msg) {
+    const parsedMsg = msg.toString();
+
+    switch (parsedMsg) {
+      case Events.Join:
+        break;
+      case Events.Position:
+        break;
+      case Events.UpdatePos:
+        break;
+      default:
+        throw new Error("Not allowed event");
+    }
+
+    ws.send("Message received successfully!");
+  });
+  console.log("socket", req.testing);
 });
 
 app.listen(3000, () => {
