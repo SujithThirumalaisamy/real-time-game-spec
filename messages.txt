@@ -1,0 +1,18 @@
+{
+	"event": "JOIN",
+	"payload": {
+		"roomId": "8b743214-3419-4741-9f7e-bbc494df7cbf",
+		"token": "2687d21e-50f6-428c-81dd-fc91ed97bead"
+	}
+}
+
+
+{
+	"event": "UPDATE_POSITION",
+	"payload": {
+		"roomId": "8b743214-3419-4741-9f7e-bbc494df7cbf",
+		"token": "2687d21e-50f6-428c-81dd-fc91ed97bead",
+		"x": 5,
+		"y": 5
+	}
+}

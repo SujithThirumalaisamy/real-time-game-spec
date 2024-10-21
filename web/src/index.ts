@@ -115,6 +115,7 @@ app.put("/users/:userId/avatar", (req, res): any => {
 app.ws("/", function (ws, req) {
   // @ts-ignore
   ws.on("message", function (msg) {
+    console.log(msg.toString());
     const parsedMsg = JSON.parse(msg.toString()) as {
       event: Events;
       payload: any;
@@ -138,7 +139,9 @@ app.ws("/", function (ws, req) {
           ws.send(JSON.stringify(res));
         }
 
-        for (let socket of users.get(roomId)) socket.send(JSON.stringify(res));
+        // for (let socket of users.get(roomId)) socket.send(JSON.stringify(res));
+        console.log(rooms.get(roomId));
+        ws.send("something");
 
         break;
       default:

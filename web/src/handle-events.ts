@@ -1,6 +1,9 @@
 import { positions, rooms, users } from "./in-memory-store";
 
 export const joinRoomEvent = (roomId: string, token: string, ws: any) => {
+  console.log(ws);
+  console.log(ws.id);
+
   const room = rooms.get(roomId);
   if (!room) {
     return {
@@ -19,7 +22,7 @@ export const joinRoomEvent = (roomId: string, token: string, ws: any) => {
 
   rooms.set(roomId, {
     ...room,
-    sockets: room.sockets.push("sargam"),
+    sockets: room.sockets.push(ws),
   });
 
   // TODO: make this random within the room boundary
