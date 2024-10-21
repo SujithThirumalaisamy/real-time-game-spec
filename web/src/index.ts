@@ -1,9 +1,9 @@
 import express, { json, type Request } from "express";
-import { randomUUID } from "crypto";
-import { rooms, users } from "./in-memory-store";
+import { rooms, sockets, users } from "./in-memory-store";
 import ExpressWS from "express-ws";
 import { Events } from "./events";
 import { joinRoomEvent, updatePositionEvent } from "./handle-events";
+import { getUUID } from "./utils";
 
 const app = express();
 
@@ -24,7 +24,7 @@ app.get("/", (req, res) => {
 // POST request to /signup
 app.post("/signup", (req, res): any => {
   const { username, password } = req.body;
-  const userId = randomUUID();
+  const userId = getUUID();
 
   users.set(userId, {
     username,
@@ -53,7 +53,7 @@ app.post("/rooms", (req, res) => {
   }
 
   const { len, bred } = req.body;
-  const roomId = randomUUID();
+  const roomId = getUUID();
   rooms.set(roomId, {
     len,
     bred,
@@ -139,9 +139,11 @@ app.ws("/", function (ws, req) {
           ws.send(JSON.stringify(res));
         }
 
-        // for (let socket of users.get(roomId)) socket.send(JSON.stringify(res));
-        console.log(rooms.get(roomId));
-        ws.send("something");
+        // Broadcast the events to all sockets
+        for (let userId of rooms.get(roomId).sockets) {
+          const socket = sockets.get(userId);
+          socket.send(JSON.stringify(res));
+        }
 
         break;
       default:

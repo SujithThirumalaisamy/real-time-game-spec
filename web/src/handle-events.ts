@@ -1,8 +1,8 @@
-import { positions, rooms, users } from "./in-memory-store";
+import { positions, rooms, sockets, users } from "./in-memory-store";
 
 export const joinRoomEvent = (roomId: string, token: string, ws: any) => {
-  console.log(ws);
-  console.log(ws.id);
+  sockets.set(token, ws);
+  console.log(sockets);
 
   const room = rooms.get(roomId);
   if (!room) {
@@ -20,11 +20,16 @@ export const joinRoomEvent = (roomId: string, token: string, ws: any) => {
     };
   }
 
+  console.log(room);
+  console.log("00000000000000000000000000000");
+  console.log("-----------------------------");
   rooms.set(roomId, {
     ...room,
-    sockets: room.sockets.push(ws),
+    sockets: room.sockets.push(token),
   });
 
+  console.log(rooms.get(roomId).sockets);
+  console.log("fjasdlkfjasdlfk");
   // TODO: make this random within the room boundary
   const defaultPos = {
     x: 0,
@@ -68,6 +73,18 @@ export const updatePositionEvent = (
     return {
       type: "error",
       message: "User position not found",
+    };
+  }
+
+  // TODO: Check for out of bounds errors
+  if (room.x < x || room.y < y || x < 0 || y < 0) {
+    return {
+      event: "position-update",
+      data: {
+        userId: token,
+        x: userPosition.x,
+        y: userPosition.y,
+      },
     };
   }
 
