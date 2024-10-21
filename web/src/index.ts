@@ -11,7 +11,6 @@ const expressWs = ExpressWS(app);
 
 app.use(express.json());
 app.use(function (req, res, next) {
-  console.log("middleware");
   // @ts-ignore
   req.testing = "testing";
   return next();
@@ -115,7 +114,6 @@ app.put("/users/:userId/avatar", (req, res): any => {
 app.ws("/", function (ws, req) {
   // @ts-ignore
   ws.on("message", function (msg) {
-    console.log(msg.toString());
     const parsedMsg = JSON.parse(msg.toString()) as {
       event: Events;
       payload: any;
@@ -135,8 +133,8 @@ app.ws("/", function (ws, req) {
         res = updatePositionEvent(x, y, token, roomId);
 
         // @ts-ignore
-        if (res.error) {
-          ws.send(JSON.stringify(res));
+        if (res.type === "error") {
+          return ws.send(JSON.stringify(res));
         }
 
         // Broadcast the events to all sockets
@@ -149,10 +147,7 @@ app.ws("/", function (ws, req) {
       default:
         throw new Error("Not allowed event");
     }
-
-    ws.send("Message received successfully!");
   });
-  console.log("socket", req.testing);
 });
 
 app.listen(3000, () => {

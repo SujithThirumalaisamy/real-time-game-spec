@@ -2,7 +2,6 @@ import { positions, rooms, sockets, users } from "./in-memory-store";
 
 export const joinRoomEvent = (roomId: string, token: string, ws: any) => {
   sockets.set(token, ws);
-  console.log(sockets);
 
   const room = rooms.get(roomId);
   if (!room) {
@@ -20,16 +19,11 @@ export const joinRoomEvent = (roomId: string, token: string, ws: any) => {
     };
   }
 
-  console.log(room);
-  console.log("00000000000000000000000000000");
-  console.log("-----------------------------");
   rooms.set(roomId, {
     ...room,
-    sockets: room.sockets.push(token),
+    sockets: [...room.sockets, token],
   });
 
-  console.log(rooms.get(roomId).sockets);
-  console.log("fjasdlkfjasdlfk");
   // TODO: make this random within the room boundary
   const defaultPos = {
     x: 0,
